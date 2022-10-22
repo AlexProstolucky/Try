@@ -1,30 +1,161 @@
 ﻿#include <iostream>
-using namespace std;
-const int DivideByZero = 111;
-using namespace std;
-float internaldiv(float arg1, float arg2)
-{
-	if (0 == arg2)
-		throw DivideByZero;
-	return arg1 / arg2;
-}
+#include <exception>
+#include <stdexcept>
+#include <windows.h>
 
-bool div(float& res, float arg1, float arg2) {
-	res = internaldiv(arg1, arg2);
-	return true;
+using namespace std;
+class Stack {
+private:
+    int* stackstore;
+    int stacksize;
+    int SP;
+public:
+    Stack(int size = 1000);
+    ~Stack();
+    void push(int value);
+    int pop(void);
+};
+Stack::Stack(int size)
+{
+    try {
+        if (size <= 0)
+        {
+            throw length_error("Розмір має бути більший нуля");
+        }
+        stackstore = new int[111111111];
+        stacksize = size;
+        SP = 0;
+    }
+    catch (length_error& exc)
+    {
+        cout << "Розмір був заданий хибно, створення буде здійснено з наперед визначеними параметрами: розмір = 1000." << endl;
+        stackstore = new int[1000];
+        stacksize = 1000;
+        SP = 0;
+    }
+    catch (bad_alloc& exc)
+    {
+        cout << "Розмір був заданий занадто великий!" << endl;
+        throw;
+    }
 }
+Stack::~Stack(void) {
+    delete[]stackstore;
+}
+void Stack::push(int value) {
+    try {
+        if (SP == stacksize)
+        {
+            throw logic_error("Стос заповнений.");
+        }
+        stackstore[SP++] = value;
+    }
+    catch (...)
+    {
+        cout << "Не можливо додати новий елемент!" << endl;
+    }
+}
+int Stack::pop() {
+    try {
+        if (SP == 0)
+        {
+            throw logic_error("Стос порожній.");
+        }
+        return stackstore[--SP];
+    }
+    catch (...)
+    {
+        cout << "Нема що вилучити." << endl;
+        SP = 0;
+        throw;
+    }
+}
+#ifdef _WIN32
 
 int main() {
-	float r, a, b;
-	while (cin >> a) {
-		cin >> b;
-		try {
-			div(r, a, b);
-			cout << r << endl;
-		}
-		catch (...) {
-			cout << "Are you kidding me?" << endl;
-		}
-	}
-	return 0;
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    try {
+        Stack stk(2100);
+        try {
+            stk.pop();
+        }
+        catch (...)
+        {
+            cout << "Вилучення не здійснено." << endl;
+        }
+        stk.push(1);
+        stk.push(2);
+        stk.push(5);
+        stk.push(7);
+        stk.push(1);
+        stk.push(2);
+        stk.push(5);
+        stk.push(7);
+        stk.push(1);
+        stk.push(2);
+        stk.push(5);
+        stk.push(7);
+        try {
+            cout << "Забрали: " << stk.pop() << "." << endl;
+            cout << "Забрали: " << stk.pop() << "." << endl;
+            cout << "Забрали: " << stk.pop() << "." << endl;
+            cout << "Забрали: " << stk.pop() << "." << endl;
+            cout << "Забрали: " << stk.pop() << "." << endl; // синтаксично правильно, але логічно ні
+            cout << "Забрали: " << stk.pop() << "." << endl; // до цього рядка виконання навіть не дійшло
+        }
+        catch (...)
+        {
+            cout << "Вилучення не здійснено." << endl;
+        }
+    }
+    catch (...)
+    {
+        cout << "Розміщення в пам'яті не відбулося." << endl;
+    }
+    return 0;
 }
+
+#elif __linux__ 
+int main() {
+    try {
+        Stack stk(2100);
+        try {
+            stk.pop();
+        }
+        catch (...)
+        {
+            cout << "Вилучення не здійснено." << endl;
+        }
+        stk.push(1);
+        stk.push(2);
+        stk.push(5);
+        stk.push(7);
+        stk.push(1);
+        stk.push(2);
+        stk.push(5);
+        stk.push(7);
+        stk.push(1);
+        stk.push(2);
+        stk.push(5);
+        stk.push(7);
+        try {
+            cout << "Забрали: " << stk.pop() << "." << endl;
+            cout << "Забрали: " << stk.pop() << "." << endl;
+            cout << "Забрали: " << stk.pop() << "." << endl;
+            cout << "Забрали: " << stk.pop() << "." << endl;
+            cout << "Забрали: " << stk.pop() << "." << endl; // синтаксично правильно, але логічно ні
+            cout << "Забрали: " << stk.pop() << "." << endl; // до цього рядка виконання навіть не дійшло
+        }
+        catch (...)
+        {
+            cout << "Вилучення не здійснено." << endl;
+        }
+    }
+    catch (...)
+    {
+        cout << "Розміщення в пам'яті не відбулося." << endl;
+    }
+    return 0;
+}
+#endif
